@@ -1,0 +1,51 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as Frontend (React/Vite)
+    participant API as Backend (FastAPI)
+    participant V as Gemini Validation Model
+    participant G as Gemini Generation Model
+    participant D as Gemini Director Prompt Step
+    participant T as Gemini TTS Model
+
+    U->>FE: Enter Japanese word + click Analyze
+    FE->>API: POST /api/word/analyze { word }
+
+    API->>API: normalize_word()
+    alt Empty after normalize
+        API-->>FE: 400 Word must not be empty
+        FE-->>U: Show error
+    else Not Japanese chars
+        API-->>FE: validation.is_valid = false (local rule)
+        FE-->>U: Show validation reason
+    else Japanese chars
+        API->>V: validate_word(word)
+        V-->>API: { is_valid, reason }
+
+        alt Validation invalid
+            API-->>FE: validation only (no content/audio)
+            FE-->>U: Show validation reason
+        else Validation valid
+            API->>G: explanation_prompt(word)
+            G-->>API: explanation { meaning, usage }
+
+            API->>G: dialogues_prompt(word, usage)
+            G-->>API: dialogues[2 scenarios]
+
+            loop each scenario
+                API->>D: director_prompt(word, title, context, transcript)
+                alt Director succeeds
+                    D-->>API: directed_tts_prompt + style_notes
+                else Director fails
+                    API->>API: fallback to basic transcript TTS text
+                end
+
+                API->>T: generate_content(AUDIO, tts_text)
+                T-->>API: inline audio bytes
+                API->>API: normalize MIME / PCM->WAV if needed
+            end
+
+            API-->>FE: validation + explanation + dialogues + audio + directed_prompts
+            FE-->>U: Render explanation/dialogues/audio
+        end
+    end

@@ -6,7 +6,7 @@ Douyatte is a phone-first web app for learning **how** to use Japanese words in 
 
 - Backend: FastAPI (Python)
 - Frontend: React + Vite + TypeScript
-- LLM/TTS: Gemini (`gemini-3-flash-lite`, `gemini-3-flash-preview`, `gemini-3.1-flash-tts-preview`)
+- LLM/TTS: Gemini (`gemini-2.5-flash-lite`, `gemini-3-flash-preview`, `gemini-2.5-pro-preview-tts`)
 
 ## Features (MVP)
 
