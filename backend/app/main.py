@@ -3,7 +3,7 @@ from functools import lru_cache
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.schemas import AnalyzeWordRequest, AnalyzeWordResponse, AudioSection, ValidationResult
+from app.schemas import AnalyzeWordRequest, AnalyzeWordResponse, ValidationResult
 from app.services.gemini_client import GeminiService, Settings
 from app.services.validation import has_only_japanese_chars, normalize_word
 
@@ -56,14 +56,17 @@ def analyze_word(payload: AnalyzeWordRequest) -> AnalyzeWordResponse:
         raise HTTPException(status_code=502, detail=f"Content generation failed: {exc}") from exc
 
     try:
-        mime_type, base64_audio = get_gemini_service().generate_dialogue_audio_base64(generated.dialogues)
-        audio = AudioSection(mime_type=mime_type, base64_audio=base64_audio)
+        audio_result = get_gemini_service().generate_dialogue_audio(word, generated.dialogues)
+        audio = audio_result.audio
+        directed_prompts = audio_result.directed_prompts
     except Exception:
-        audio = None
+        audio = []
+        directed_prompts = []
 
     return AnalyzeWordResponse(
         validation=validation_result,
         explanation=generated.explanation,
         dialogues=generated.dialogues,
         audio=audio,
+        directed_prompts=directed_prompts,
     )

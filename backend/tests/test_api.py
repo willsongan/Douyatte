@@ -16,3 +16,4 @@ def test_analyze_rejects_non_japanese_input() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["validation"]["is_valid"] is False
+    assert body["directed_prompts"] == []

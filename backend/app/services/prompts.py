@@ -13,20 +13,52 @@ def validation_prompt(word: str) -> str:
 
 def explanation_prompt(word: str) -> str:
     return (
-        "You are helping learners understand HOW to use a Japanese word in real life.\n"
+        "You are helping learners understand how to use a Japanese word in real life.\n"
         "Return JSON only.\n"
-        'Schema: {"meaning": string, "nuance": string, "usage_notes": string[], "common_patterns": string[]}\n'
-        "Keep explanations practical, concise, and learner-friendly.\n"
+        'Return exactly this shape: {"meaning": string, "usage": string}\n'
+        "Keep it concise and practical.\n"
+        "meaning: short plain-English definition.\n"
+        "usage: 1-2 learner-friendly sentences combining nuance and usage notes.\n"
         f"Word: {word}"
     )
 
 
-def dialogues_prompt(word: str) -> str:
+def dialogues_prompt(word: str, usage_context: str) -> str:
     return (
-        "Create realistic, colloquial scenarios and dialogues using this Japanese word naturally.\n"
+        "Create short, practical Japanese dialogues that clearly teach when to use this word.\n"
         "Return JSON only.\n"
-        'Schema: {"dialogues": [{"title": string, "context": string, "turns": [{"speaker": string, "japanese": string, "romaji": string, "english": string}]}]}\n'
-        "Generate 2 scenarios, each with 6-8 turns.\n"
-        "Japanese lines must sound natural in modern daily conversation.\n"
+        'Return exactly this shape: {"dialogues": [{"title": string, "context": string, "turns": [{"speaker": string, "japanese": string, "romaji": string, "english": string}]}]}\n'
+        "Generate exactly 2 scenarios with clearly different use-cases.\n"
+        "Each scenario context must explain the situation in plain English (when this word is used).\n"
+        "Keep each scenario very short: target 2 turns total, minimum 2 turns, maximum 4 turns.\n"
+        "Use two speakers in every scenario.\n"
+        "Keep Japanese lines natural in modern daily conversation.\n"
+        "Make both scenarios easy for beginners to distinguish.\n"
+        f"Usage context: {usage_context}\n"
         f"Word: {word}"
+    )
+
+
+def director_prompt(word: str, scenario_title: str, scenario_context: str, transcript: str) -> str:
+    return (
+        "You are a voice director preparing an advanced prompt for Gemini TTS.\n"
+        "Return JSON only.\n"
+        'Return exactly this shape: {"directed_tts_prompt": string, "style_notes": string}\n'
+        "Goal: keep the same meaning and speaker intent, but make delivery sound naturally human and expressive.\n"
+        "Build the directed_tts_prompt with these sections and labels exactly:\n"
+        "# AUDIO PROFILE\n"
+        "## THE SCENE\n"
+        "### DIRECTOR'S NOTES\n"
+        "### TRANSCRIPT\n"
+        "Rules:\n"
+        "- Keep transcript content faithful to the source dialogue meaning.\n"
+        "- Keep wording concise; do not add long narration.\n"
+        "- Use light, selective audio tags in English only (for example [curious], [slight pause], [warmly]).\n"
+        "- Avoid over-tagging and avoid robotic or theatrical overacting.\n"
+        "- Do not include markdown code fences.\n"
+        "- The TRANSCRIPT section must include speaker-prefixed lines suitable for TTS.\n"
+        f"Word: {word}\n"
+        f"Scenario title: {scenario_title}\n"
+        f"Scenario context: {scenario_context}\n"
+        f"Source transcript:\n{transcript}"
     )

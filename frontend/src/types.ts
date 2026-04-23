@@ -5,9 +5,7 @@ export type ValidationResult = {
 
 export type ExplanationSection = {
   meaning: string;
-  nuance: string;
-  usage_notes: string[];
-  common_patterns: string[];
+  usage: string;
 };
 
 export type DialogueTurn = {
@@ -24,13 +22,22 @@ export type DialogueScenario = {
 };
 
 export type AudioSection = {
+  scenario_title: string;
   mime_type: string;
   base64_audio: string;
+};
+
+export type DirectedPromptSection = {
+  scenario_title: string;
+  directed_tts_prompt: string;
+  style_notes: string;
+  used_fallback: boolean;
 };
 
 export type AnalyzeWordResponse = {
   validation: ValidationResult;
   explanation?: ExplanationSection;
   dialogues: DialogueScenario[];
-  audio?: AudioSection;
+  audio: AudioSection[];
+  directed_prompts: DirectedPromptSection[];
 };

@@ -17,7 +17,7 @@ function App() {
   const [phase, setPhase] = useState("Idle");
 
   const ttsStatus = useMemo(() => {
-    if (result?.audio) return "Audio ready.";
+    if (result?.audio.length) return "Audio ready.";
     if (isBusy) return "Generating audio...";
     return "No audio generated yet.";
   }, [isBusy, result?.audio]);
@@ -87,7 +87,11 @@ function App() {
             showEnglish={showEnglish}
             setShowEnglish={setShowEnglish}
           />
-          <AudioSection audio={result.audio} ttsStatus={ttsStatus} />
+          <AudioSection
+            audio={result.audio}
+            directedPrompts={result.directed_prompts}
+            ttsStatus={ttsStatus}
+          />
         </>
       ) : null}
     </main>

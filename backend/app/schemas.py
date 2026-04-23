@@ -14,9 +14,7 @@ class ValidationResult(BaseModel):
 
 class ExplanationSection(BaseModel):
     meaning: str
-    nuance: str
-    usage_notes: List[str]
-    common_patterns: List[str]
+    usage: str
 
 
 class DialogueTurn(BaseModel):
@@ -33,12 +31,21 @@ class DialogueScenario(BaseModel):
 
 
 class AudioSection(BaseModel):
+    scenario_title: str
     mime_type: str
     base64_audio: str
+
+
+class DirectedPromptSection(BaseModel):
+    scenario_title: str
+    directed_tts_prompt: str
+    style_notes: str = ""
+    used_fallback: bool = False
 
 
 class AnalyzeWordResponse(BaseModel):
     validation: ValidationResult
     explanation: Optional[ExplanationSection] = None
     dialogues: List[DialogueScenario] = Field(default_factory=list)
-    audio: Optional[AudioSection] = None
+    audio: List[AudioSection] = Field(default_factory=list)
+    directed_prompts: List[DirectedPromptSection] = Field(default_factory=list)
