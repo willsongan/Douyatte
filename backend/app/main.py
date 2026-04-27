@@ -1,8 +1,11 @@
 from functools import lru_cache
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import Session, select
 
+from app.db import get_session, init_db
+from app.models import CachedWordAnalysis
 from app.schemas import AnalyzeWordRequest, AnalyzeWordResponse, ValidationResult
 from app.services.gemini_client import GeminiService, Settings
 from app.services.validation import has_only_japanese_chars, normalize_word
@@ -23,13 +26,21 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.on_event("startup")
+def on_startup() -> None:
+    init_db()
+
+
 @lru_cache(maxsize=1)
 def get_gemini_service() -> GeminiService:
     return GeminiService(settings=Settings())
 
 
 @app.post("/api/word/analyze", response_model=AnalyzeWordResponse)
-def analyze_word(payload: AnalyzeWordRequest) -> AnalyzeWordResponse:
+def analyze_word(
+    payload: AnalyzeWordRequest,
+    session: Session = Depends(get_session),
+) -> AnalyzeWordResponse:
     word = normalize_word(payload.word)
     if not word:
         raise HTTPException(status_code=400, detail="Word must not be empty.")
@@ -41,6 +52,10 @@ def analyze_word(payload: AnalyzeWordRequest) -> AnalyzeWordResponse:
                 reason="Input must contain only Japanese characters (hiragana, katakana, kanji).",
             )
         )
+
+    cached = session.exec(select(CachedWordAnalysis).where(CachedWordAnalysis.word == word)).first()
+    if cached:
+        return AnalyzeWordResponse.model_validate_json(cached.response_json)
 
     try:
         validation_result = get_gemini_service().validate_word(word)
@@ -63,10 +78,14 @@ def analyze_word(payload: AnalyzeWordRequest) -> AnalyzeWordResponse:
         audio = []
         directed_prompts = []
 
-    return AnalyzeWordResponse(
+    response = AnalyzeWordResponse(
         validation=validation_result,
         explanation=generated.explanation,
         dialogues=generated.dialogues,
         audio=audio,
         directed_prompts=directed_prompts,
     )
+    cached = CachedWordAnalysis(word=word, response_json=response.model_dump_json())
+    session.add(cached)
+    session.commit()
+    return response

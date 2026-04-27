@@ -28,3 +28,4 @@ frontend/dist/
 # IDE / OS
 .DS_Store
 Thumbs.db
+backend/douyatte_cache.db
