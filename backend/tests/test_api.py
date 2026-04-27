@@ -2,10 +2,11 @@ from collections.abc import Generator
 
 from fastapi.testclient import TestClient
 from sqlalchemy.pool import StaticPool
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, SQLModel, create_engine, select
 
 from app.db import get_session
 from app.main import app
+from app.models import CachedWordAnalysis
 from app.schemas import (
     AudioSection,
     DialogueScenario,
@@ -98,5 +99,11 @@ def test_analyze_uses_cache_for_same_word(monkeypatch) -> None:
     assert fake_service.validate_calls == 1
     assert fake_service.generate_calls == 1
     assert fake_service.audio_calls == 1
+
+    with Session(engine) as session:
+        cached = session.exec(select(CachedWordAnalysis).where(CachedWordAnalysis.word == "食べる")).first()
+        assert cached is not None
+        assert cached.audio_blob is not None
+        assert "base64_audio" not in cached.response_json
 
     app.dependency_overrides.clear()
