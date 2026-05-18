@@ -94,6 +94,51 @@ button:disabled {
   width: 100%;
 }
 
+.hub {
+  min-height: 100dvh;
+}
+
+.iterationList {
+  display: grid;
+  gap: 10px;
+}
+
+.iterationButton {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  background: #fff;
+  color: #16181d;
+  border: 1px solid #cdd4df;
+  padding: 14px 16px;
+  box-shadow: 0 2px 12px rgba(18, 20, 28, 0.06);
+}
+
+.iterationButton:hover {
+  border-color: #1e63ff;
+}
+
+.iterationButtonTitle {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.iterationButtonDesc {
+  font-size: 0.9rem;
+  color: #5d6573;
+}
+
+.iterationHeader {
+  display: grid;
+  gap: 10px;
+}
+
+.backButton {
+  width: fit-content;
+  background: #e8edf7;
+  color: #2f3a4d;
+}
+
 @media (min-width: 900px) {
   .container {
     padding: 28px;
