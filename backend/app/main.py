@@ -9,7 +9,14 @@ from sqlmodel import Session, select
 
 from app.db import get_session, init_db
 from app.models import CachedWordAnalysis
-from app.schemas import AnalyzeWordRequest, AnalyzeWordResponse, AudioSection, ValidationResult
+from app.schemas import (
+    AnalyzeWordRequest,
+    AnalyzeWordResponse,
+    AudioSection,
+    TranslatePhraseRequest,
+    TranslatePhraseResponse,
+    ValidationResult,
+)
 from app.services.gemini_client import GeminiService, Settings
 from app.services.validation import has_only_japanese_chars, normalize_word
 
@@ -96,6 +103,18 @@ def decode_audio_blob(audio_blob: bytes | None) -> list[AudioSection]:
         )
 
     return decoded_audio
+
+
+@app.post("/api/phrase/translate", response_model=TranslatePhraseResponse)
+def translate_phrase(payload: TranslatePhraseRequest) -> TranslatePhraseResponse:
+    phrase = payload.phrase.strip()
+    if not phrase:
+        raise HTTPException(status_code=400, detail="Phrase must not be empty.")
+
+    try:
+        return get_gemini_service().translate_phrase_registers(phrase)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Phrase translation failed: {exc}") from exc
 
 
 @app.post("/api/word/analyze", response_model=AnalyzeWordResponse)

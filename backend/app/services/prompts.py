@@ -65,3 +65,28 @@ def director_prompt(word: str, scenario_title: str, scenario_context: str, trans
         f"Scenario context: {scenario_context}\n"
         f"Source transcript:\n{transcript}"
     )
+
+
+def phrase_translation_prompt(phrase: str) -> str:
+    return (
+        "You help English speakers learn natural Japanese phrasing across speech registers.\n"
+        "Return JSON only.\n"
+        "Return exactly this shape:\n"
+        '{"source_phrase": string, "forms": {"plain": {"standard": string, "colloquial": string, "romaji": string, "note": string}, '
+        '"polite": {"standard": string, "colloquial": string, "romaji": string, "note": string}, '
+        '"respectful": {"standard": string, "colloquial": string, "romaji": string, "note": string}, '
+        '"humble": {"standard": string, "colloquial": string, "romaji": string, "note": string}}}\n'
+        "Registers:\n"
+        "- plain: casual/plain form (常体) suitable among close friends or family.\n"
+        "- polite: standard polite form (丁寧語) suitable in everyday polite conversation.\n"
+        "- respectful: honorific/respectful form (尊敬語) when elevating the listener or a third person you refer to.\n"
+        "- humble: humble form (謙譲語) when lowering yourself/your in-group relative to the listener.\n"
+        "For each register provide:\n"
+        "- standard: the natural textbook-correct phrasing for that register.\n"
+        "- colloquial: how people often say it in real casual speech (may include contractions, particles, or spoken softenings).\n"
+        "- romaji: Hepburn romaji for the standard line.\n"
+        "- note: brief English note on nuance, when to use it, or why a register may be awkward for this phrase.\n"
+        "If respectful or humble is unnatural for the phrase, still return the closest natural option and explain the limitation in note.\n"
+        "Use modern, natural Japanese. Keep lines short and speakable.\n"
+        f"English phrase: {phrase}"
+    )

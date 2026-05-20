@@ -16,7 +16,7 @@ describe("App", () => {
       screen.getByRole("button", { name: /Iteration 1 — Word context/i })
     ).not.toBeNull();
     expect(
-      screen.getByRole("button", { name: /Iteration 2 — New feature/i })
+      screen.getByRole("button", { name: /Iteration 2 — Phrase registers/i })
     ).not.toBeNull();
   });
 
@@ -48,5 +48,23 @@ describe("App", () => {
     openIteration1();
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.getByRole("heading", { name: "Douyatte" })).not.toBeNull();
+  });
+
+  it("opens iteration 2 from the hub", () => {
+    render(<App />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Iteration 2 — Phrase registers/i })
+    );
+    expect(screen.getByRole("heading", { name: "Phrase registers" })).not.toBeNull();
+    expect(screen.getByPlaceholderText("e.g. I will go tomorrow")).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Translate" })).not.toBeNull();
+  });
+
+  it("keeps romaji hidden by default in iteration 2", () => {
+    render(<App />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Iteration 2 — Phrase registers/i })
+    );
+    expect(screen.queryByLabelText("Romaji")).toBeNull();
   });
 });

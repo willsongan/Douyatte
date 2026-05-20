@@ -41,3 +41,31 @@ export type AnalyzeWordResponse = {
   audio: AudioSection[];
   directed_prompts: DirectedPromptSection[];
 };
+
+export type RegisterVariant = {
+  standard: string;
+  colloquial: string;
+  romaji: string;
+  note: string;
+};
+
+export type RegisterForms = {
+  plain: RegisterVariant;
+  polite: RegisterVariant;
+  respectful: RegisterVariant;
+  humble: RegisterVariant;
+};
+
+export type TranslatePhraseResponse = {
+  source_phrase: string;
+  forms: RegisterForms;
+};
+
+export type RegisterKey = keyof RegisterForms;
+
+export const REGISTER_LABELS: Record<RegisterKey, string> = {
+  plain: "Plain form",
+  polite: "Polite form",
+  respectful: "Respectful form",
+  humble: "Humble form",
+};

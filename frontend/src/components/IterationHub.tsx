@@ -23,9 +23,9 @@ export function IterationHub({
         </button>
 
         <button type="button" className="iterationButton" onClick={onSelectIteration2}>
-          <span className="iterationButtonTitle">Iteration 2 — New feature</span>
+          <span className="iterationButtonTitle">Iteration 2 — Phrase registers</span>
           <span className="iterationButtonDesc">
-            Empty shell for the next experiment.
+            Translate English into plain, polite, respectful, and humble Japanese.
           </span>
         </button>
       </nav>

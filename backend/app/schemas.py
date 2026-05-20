@@ -49,3 +49,26 @@ class AnalyzeWordResponse(BaseModel):
     dialogues: List[DialogueScenario] = Field(default_factory=list)
     audio: List[AudioSection] = Field(default_factory=list)
     directed_prompts: List[DirectedPromptSection] = Field(default_factory=list)
+
+
+class TranslatePhraseRequest(BaseModel):
+    phrase: str = Field(min_length=1, max_length=200)
+
+
+class RegisterVariant(BaseModel):
+    standard: str
+    colloquial: str
+    romaji: str = ""
+    note: str = ""
+
+
+class RegisterForms(BaseModel):
+    plain: RegisterVariant
+    polite: RegisterVariant
+    respectful: RegisterVariant
+    humble: RegisterVariant
+
+
+class TranslatePhraseResponse(BaseModel):
+    source_phrase: str
+    forms: RegisterForms

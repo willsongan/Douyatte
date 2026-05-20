@@ -13,6 +13,9 @@ from app.schemas import (
     DialogueTurn,
     DirectedPromptSection,
     ExplanationSection,
+    RegisterForms,
+    RegisterVariant,
+    TranslatePhraseResponse,
     ValidationResult,
 )
 
@@ -22,6 +25,33 @@ def test_health_endpoint() -> None:
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_translate_phrase_returns_four_registers(monkeypatch) -> None:
+    class FakeGeminiService:
+        def translate_phrase_registers(self, phrase: str) -> TranslatePhraseResponse:
+            variant = RegisterVariant(
+                standard=f"{phrase}-std",
+                colloquial=f"{phrase}-col",
+                romaji="romaji",
+                note="note",
+            )
+            forms = RegisterForms(
+                plain=variant,
+                polite=variant,
+                respectful=variant,
+                humble=variant,
+            )
+            return TranslatePhraseResponse(source_phrase=phrase, forms=forms)
+
+    monkeypatch.setattr("app.main.get_gemini_service", lambda: FakeGeminiService())
+    client = TestClient(app)
+    response = client.post("/api/phrase/translate", json={"phrase": "I will go tomorrow"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["source_phrase"] == "I will go tomorrow"
+    assert body["forms"]["plain"]["standard"] == "I will go tomorrow-std"
+    assert body["forms"]["humble"]["colloquial"] == "I will go tomorrow-col"
 
 
 def test_analyze_rejects_non_japanese_input() -> None:

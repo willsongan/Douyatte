@@ -15,9 +15,16 @@ from app.schemas import (
     DialogueScenario,
     DirectedPromptSection,
     ExplanationSection,
+    TranslatePhraseResponse,
     ValidationResult,
 )
-from app.services.prompts import director_prompt, dialogues_prompt, explanation_prompt, validation_prompt
+from app.services.prompts import (
+    director_prompt,
+    dialogues_prompt,
+    explanation_prompt,
+    phrase_translation_prompt,
+    validation_prompt,
+)
 
 
 class Settings(BaseSettings):
@@ -92,6 +99,12 @@ class GeminiService:
     def validate_word(self, word: str) -> ValidationResult:
         payload = self._generate_json(model=self._validation_model, prompt=validation_prompt(word))
         return ValidationResult.model_validate(payload)
+
+    def translate_phrase_registers(self, phrase: str) -> TranslatePhraseResponse:
+        payload = self._generate_json(
+            model=self._generation_model, prompt=phrase_translation_prompt(phrase)
+        )
+        return TranslatePhraseResponse.model_validate(payload)
 
     def generate_text_sections(self, word: str) -> GeneratedText:
         explanation_payload = self._generate_json(model=self._generation_model, prompt=explanation_prompt(word))

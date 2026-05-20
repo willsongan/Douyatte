@@ -80,7 +80,8 @@ button:disabled {
   gap: 10px;
 }
 
-.scenario {
+.scenario,
+.registerBlock {
   border-top: 1px solid #e6eaf1;
   margin-top: 10px;
   padding-top: 10px;
